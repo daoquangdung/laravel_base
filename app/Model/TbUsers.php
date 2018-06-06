@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use Illuminate\Support\Facades\Hash;
 class TbUsers extends Authenticatable
 {
     //
@@ -21,6 +21,7 @@ class TbUsers extends Authenticatable
         'username', 'email', 'password','permission','deleted'
     ];
 
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -31,4 +32,8 @@ class TbUsers extends Authenticatable
     ];
 
     protected $table = 'tb_users';
+
+    public function hashPassword($password){
+        return Hash::make($password);
+    }
 }

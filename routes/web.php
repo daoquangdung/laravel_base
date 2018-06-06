@@ -29,6 +29,8 @@ Route::group(['middleware' => ['auth']], function() {
         Route::post('users/delete', 'admin\UsersController@delete')->name('admin/users/delete');
         Route::get('users/get/{id}', 'admin\UsersController@getUser')->name('admin/users/get');
         Route::post('users/save', 'admin\UsersController@save')->name('admin/users/save');
+        Route::get('users/create', 'admin\UsersController@getCreate')->name('admin/users/create');
+        Route::post('users/create', 'admin\UsersController@postCreate')->name('admin/users/create');
     });
 });
 Auth::routes();

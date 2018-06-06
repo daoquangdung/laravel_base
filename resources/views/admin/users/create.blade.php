@@ -38,7 +38,7 @@
                     </div>
                     <div class="card-body">
                         <div class="basic-form">
-                            <form action="{{ URL::route('admin/users/save') }}" method="POST">
+                            <form action="{{ URL::route('admin/users/create') }}" method="POST">
                                 @if (Session::has('success'))
                                     <div class="alert alert-info">
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
@@ -65,7 +65,7 @@
                                         <div class="input-group-prepend">
                                             <div class="input-group-text"><i class="fa fa-user"></i></div>
                                         </div>
-                                        <input type="text" name="name" class="form-control" value="<?php echo $user->username?>" placeholder="Username">
+                                        <input type="text" name="name" class="form-control" value="" placeholder="Username">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -74,11 +74,28 @@
                                         <div class="input-group-prepend">
                                             <div class="input-group-text"><i class="fa fa-envelope"></i></div>
                                         </div>
-                                        <input type="text" name="email" class="form-control" value="<?php echo $user->email?>" placeholder="Email">
+                                        <input type="text" name="email" class="form-control" value="" placeholder="Email">
                                     </div>
                                 </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Password</label>
+                                        <div class="input-group mb-2 mr-sm-2">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text"><i class="fa fa-key" aria-hidden="true"></i></div>
+                                            </div>
+                                            <input type="password" name="password" class="form-control" value="" placeholder="Password">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Password confirm</label>
+                                        <div class="input-group mb-2 mr-sm-2">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text"><i class="fa fa-key" aria-hidden="true"></i></div>
+                                            </div>
+                                            <input type="password" name="password_confirm" class="form-control" value="" placeholder="Enter password">
+                                        </div>
+                                    </div>
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="id" value="<?php echo $user->id?>"/>
                                 <div class="text-right">
                                     <button type="submit" class="btn btn-default">Submit</button>
                                 </div>

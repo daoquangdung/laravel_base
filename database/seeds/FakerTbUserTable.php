@@ -14,12 +14,17 @@ class FakerTbUserTable extends Seeder
     {
         //
         $faker = Faker::create();
-        for ($i = 0;$i<=100;$i++){
-            $user = TbUsers::create([
-                'name' => $faker->userName,
-                'email' =>$faker->email,
-                'password' => Hash::make('123456')
-            ]);
+        for ($i = 0;$i<=10000;$i++){
+            $email = $faker->email;
+            $check = TbUsers::where('email', '=', $email)->first();
+            if(!$check){
+                $user = TbUsers::create([
+                    'username' => $faker->userName,
+                    'email' =>$email,
+                    'password' => Hash::make('123456')
+                ]);
+            }
+
         }
     }
 }

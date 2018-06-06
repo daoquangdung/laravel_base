@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Model\TbUsers;
-credentials
+
 class TbUsersTableSeeder extends Seeder
 {
     /**

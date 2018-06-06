@@ -11,7 +11,7 @@ class UsersController extends Controller
 {
     //
     public function index(){
-        $users = TbUsers::where('status',1)->orderBy('id', 'desc')->paginate(10);
+        $users = TbUsers::where('deleted',0)->orderBy('id', 'desc')->paginate(10);
         return view('admin.users.users')->with('users', $users);
     }
 
@@ -19,7 +19,7 @@ class UsersController extends Controller
         $response = [];
         $id = $request->input('id');
         $user = TbUsers::find($id);
-        $user->status = 0;
+        $user->deleted = 1;
         try{
             $user->save(); // returns false
             if($user->save()){
@@ -43,14 +43,15 @@ class UsersController extends Controller
     public function save(Request $request){
         $id = $request->input('id');
         $validator = Validator::make($request->all(), [
-            'name' => 'required|min:6|max:255',
-            'email' => 'required|email',
+            'name' => 'required|min:5|max:255',
+            'email' => 'required|email|unique:tb_users',
         ],[
             'name.required' => 'Chưa nhập Username. ',
-            'name.min' => 'Username phải có ít nhất 6 ký tự. ',
+            'name.min' => 'Username phải có ít nhất 5 ký tự. ',
             'name.max' => 'Username tối đa có 255 ký tự. ',
             'email.required' => 'Không được để trống.',
             'email.email' => 'Không đúng định dạng email.',
+            'email.unique' => 'Email đã tồn tại.',
         ]);
 
         $error = [];
@@ -62,7 +63,7 @@ class UsersController extends Controller
         $user = TbUsers::find($id);
         if(empty($error)){
             if($user){
-                $user->name = $request->input('name');
+                $user->username = $request->input('name');
                 $user->email = $request->input('email');
                 try{
                     $user->save(); // returns false
@@ -83,5 +84,56 @@ class UsersController extends Controller
         }
         return redirect()->back()->with('success', 'success');
 
+    }
+
+    public function getCreate(){
+        return view('admin.users.create');
+    }
+
+    public function postCreate(Request $request){
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5|max:255',
+            'email' => 'required|email|unique:tb_users',
+            'password' => 'required|min:6',
+            'password_confirm' => 'required|same:password'
+        ],[
+            'name.required' => 'Chưa nhập Username. ',
+            'name.min' => 'Username phải có ít nhất 5 ký tự. ',
+            'name.max' => 'Username tối đa có 255 ký tự. ',
+            'email.required' => 'Email Không được để trống.',
+            'email.email' => 'Không đúng định dạng email.',
+            'email.unique' => 'Email đã tồn tại.',
+            'password.required' => 'Chưa nhập mật khẩu.',
+            'password.min' => 'Mật khẩu Phải nhiều hơn 6 ký tự.',
+            'password_confirm.required' => 'Chưa nhập lại mật khẩu.',
+            'password_confirm.same' => 'Nhập lại mật khẩu sai.',
+        ]);
+
+        $error = [];
+
+        if ($validator->fails()) {
+            $error = $validator->errors()->all();
+        }
+
+//        $user = TbUsers::find($id);
+        if(empty($error)){
+            $user = new TbUsers();
+
+            $user->username = $request->input('name');
+            $user->email = $request->input('email');
+            $user->password = $user->hashPassword($request->input('password'));
+            try{
+                $user->save(); // returns false
+            }
+            catch(\Exception $e){
+                $error[] = 'Lỗi ! Không thể lưu '.$user->name;
+            }
+        }
+
+        if(!empty($error)){
+            return redirect()->back()->with('errors',$error);
+        }
+
+        return redirect()->route('admin/users/get', ['id' => 107])->with('success', 'create success');
     }
 }

@@ -38,7 +38,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="text-right">
-                                    <a href="" class="btn btn-primary active">Add user</a>
+                                    <a href="{{ route('admin/users/create') }}" class="btn btn-primary active">Add user</a>
                                 </div>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                                 <?php foreach ($users as $user){ ?>
                                 <tr id="tr-<?php echo $user->id ?>">
                                     <th scope="row"><?php echo $user->id ?></th>
-                                    <td><?php echo $user->name ?></td>
+                                    <td><?php echo $user->username ?></td>
                                     <td><?php echo $user->email ?></td>
                                     <td><?php echo $user->created_at ?></td>
                                     <td>
@@ -84,82 +84,5 @@
     <script src="{!! asset('js/lib/toastr/toastr.min.js') !!}"></script>
 @endsection
 @section('script')
-<script>
-    $(document).ready(function () {
-        $(".delete-record").click(function () {
-            var url = '';
-            var thisClick = $(this);
-            swal({
-                    title: "Are you sure to delete ?",
-                    text: "You will not be able to recover this imaginary file !!",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes, delete it !!",
-                    closeOnConfirm: false
-                },
-                function(e){
-                    swal.close();
-                    if(e){
-                        $.ajax({
-                            type:'POST',
-                            url:thisClick.data('url'),
-                            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                            data:{id:thisClick.data('id')},
-                            success:function(data){
-                                if(data.status == 1){
-                                    $("#tr-"+thisClick.data('id')).remove();
-                                    toastr.success(data.message,{
-                                        timeOut: 5000,
-                                        "closeButton": true,
-                                        "debug": false,
-                                        "newestOnTop": true,
-                                        "progressBar": true,
-                                        "positionClass": "toast-top-right",
-                                        "preventDuplicates": true,
-                                        "onclick": null,
-                                        "showDuration": "300",
-                                        "hideDuration": "1000",
-                                        "extendedTimeOut": "1000",
-                                        "showEasing": "swing",
-                                        "hideEasing": "linear",
-                                        "showMethod": "fadeIn",
-                                        "hideMethod": "fadeOut",
-                                        "tapToDismiss": false
-
-                                    })
-                                }
-                                if(data.status == 0){
-                                    toastr.error(data.message,{
-                                        "positionClass": "toast-top-right",
-                                        timeOut: 5000,
-                                        "closeButton": true,
-                                        "debug": false,
-                                        "newestOnTop": true,
-                                        "progressBar": true,
-                                        "preventDuplicates": true,
-                                        "onclick": null,
-                                        "showDuration": "300",
-                                        "hideDuration": "1000",
-                                        "extendedTimeOut": "1000",
-                                        "showEasing": "swing",
-                                        "hideEasing": "linear",
-                                        "showMethod": "fadeIn",
-                                        "hideMethod": "fadeOut",
-                                        "tapToDismiss": false
-
-                                    })
-                                }
-                            },
-                            error: function (data, textStatus, errorThrown) {
-
-                            }
-                        });
-                    }
-                });
-        })
-    })
-
-
-</script>
+    <script src="{!! asset('js/admin/users/users.js') !!}"></script>
 @endsection
