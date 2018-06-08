@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Model\TbUserInfo;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\TbUsers;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\UploadedFile;
+use Image;
+
+
+use League\Flysystem\Exception;
 use Validator;
 class UsersController extends Controller
 {
@@ -69,7 +75,7 @@ class UsersController extends Controller
                     $user->save(); // returns false
                 }
                 catch(\Exception $e){
-                    $error[] = 'Lỗi ! Không thể xóa '.$user->name;
+                    $error[] = 'Lỗi ! Không thể Tạo '.$user->name;
                 }
             }else{
                 $error[] = 'không tìm thấy user này';
@@ -136,4 +142,125 @@ class UsersController extends Controller
 
         return redirect()->route('admin/users/get', ['id' => 107])->with('success', 'create success');
     }
+
+    public function viewUser($id){
+        $user = TbUsers::find($id);
+        $error = [];
+        if($user){
+            $userInfo = $user->getUserInfo();
+
+            $response = array(
+                'user' => $user,
+                'userInfo' => $userInfo
+            );
+        }else{
+            $error[] = "User Không tồn tại";
+        }
+
+        if(!empty($error)){
+            abort(404);
+        }
+        return view('admin.users.view')->with($response);
+    }
+
+    public function editUser(Request $request){
+        $id = $request->input('id');
+        $user = TbUsers::find($id);
+
+        $infoUser = $user->getUserInfo();
+        $error = [];
+
+        if($user){
+            $validator = Validator::make($request->all(), [
+                'phone' => 'regex:/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/'
+            ],[
+                'phone.regex' => 'Số điện thoại không đúng định dạng. ',
+            ]);
+
+            if ($validator->fails()) {
+                $error = $validator->errors()->all();
+            }
+
+        }else{
+            $error[] = "Không tìm thấy user này";
+        }
+
+        if(empty($error)){
+            $infoUser->phone = $request->phone;
+            $infoUser->firstname = $request->firstname;
+            $infoUser->lastname = $request->lastname;
+            $infoUser->address = $request->address;
+            $infoUser->birthday = $request->birthday;
+            $infoUser->facebook = $request->facebook;
+            $infoUser->about = $request->about;
+            $infoUser->save();
+        }
+
+        if(!empty($error)){
+            return redirect()->back()->with('errors',$error);
+        }
+
+        return redirect()->back()->with('success', 'success');
+    }
+
+
+    public function editAvatar(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'avatar' => 'required|mimes:jpeg,png,jpg|max:2048',
+        ],[
+            'avatar.required' => 'Chưa chọn ảnh',
+            'avatar.mimes' => 'Không đúng định dạng ảnh',
+            'avatar.max' => 'Ảnh quá lớn',
+        ]);
+        $error = [];
+        if ($validator->fails()) {
+            $error = $validator->errors()->all();
+        }
+
+        if(!empty($error)){
+
+            return redirect()->back()->with('errors',$error);
+        }
+
+        $file = $request->file('avatar');
+
+        $now = time();
+        $filename = md5($now).'_' . $now .'_'.$request->id.'.'. $file->getClientOriginalExtension();
+        $path = 'avatar/'.$request->id;
+
+        try{
+            $file->storeAs($path, $filename);
+        }catch (Exception $e){
+            $error[] = "Không lưu được ảnh";
+        }
+        $img = Image::make($file->getRealPath());
+        $img->fit(100);
+        $filenameResize = md5($now).'_' . $now .'_'.$request->id.'_100x100.'. $file->getClientOriginalExtension();
+        $path = 'app/avatar/'.$request->id;
+        try{
+            $img->save(storage_path($path.'/'.$filenameResize));
+        }catch (Exception $e){
+            $error[] = "Không lưu được ảnh";
+        }
+        if(empty($error)){
+            $infoUser = TbUserInfo::where('user_id',$request->id)->first();
+            $infoUser->avatar = url("/storage/avatar/".$request->id."/".$filenameResize);
+            try{
+                $infoUser->save();
+            }catch(Exception $e) {
+                $error[] = "Không tìm thấy user này";
+            }
+        }
+        if(!empty($error)){
+
+            return redirect()->back()->with('errors',$error);
+        }
+
+        return redirect()->back()->with('success', 'success');
+
+    }
+
+
+
 }

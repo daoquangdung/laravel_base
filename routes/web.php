@@ -31,8 +31,12 @@ Route::group(['middleware' => ['auth']], function() {
         Route::post('users/save', 'admin\UsersController@save')->name('admin/users/save');
         Route::get('users/create', 'admin\UsersController@getCreate')->name('admin/users/create');
         Route::post('users/create', 'admin\UsersController@postCreate')->name('admin/users/create');
+        Route::get('users/view/{id}','admin\UsersController@viewUser');
+        Route::post('users/edit','admin\UsersController@editUser')->name('admin/users/edit');
+        Route::post('users/editavatar','admin\UsersController@editAvatar')->name('admin/users/editavatar');
     });
 });
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
+Route::get('/storage/avatar/{id}/{filename}','PublicController\AvatarController@avatar')->name('/storage/avatar/');
